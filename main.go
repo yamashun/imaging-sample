@@ -1,9 +1,9 @@
 package main
 
 import (
-	"flag"
+	"io/ioutil"
 	"log"
-	"path/filepath"
+	"os"
 
 	"github.com/disintegration/imaging"
 )
@@ -13,16 +13,16 @@ const (
 	OUT_PATH  = "tmp/"
 )
 
-func resize(path string) {
+func resize(path string, filename string) {
 	srcImage, err := imaging.Open(path)
 	if err != nil {
 		log.Fatal(err)
 	}
-	width := srcImage.Bounds().Dx()
-	if width > MAX_WIDTH {
+
+	if srcImage.Bounds().Dx() > MAX_WIDTH {
 		resizedImage := imaging.Resize(srcImage, MAX_WIDTH, 0, imaging.Lanczos)
 
-		err = imaging.Save(resizedImage, OUT_PATH+filepath.Base(path))
+		err = imaging.Save(resizedImage, OUT_PATH+filename)
 		if err != nil {
 			log.Fatalf("failed to save image: %v", err)
 		}
@@ -30,9 +30,14 @@ func resize(path string) {
 }
 
 func main() {
-	flag.Parse()
-	paths := flag.Args()
-	for _, path := range paths {
-		resize(path)
+	if len(os.Args) < 2 {
+		log.Fatal("ERROR: 引数を指定してください。")
+	}
+
+	dirPath := os.Args[1]
+	files, _ := ioutil.ReadDir(dirPath)
+
+	for _, fileInfo := range files {
+		resize(dirPath+fileInfo.Name(), fileInfo.Name())
 	}
 }
