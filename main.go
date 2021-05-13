@@ -10,10 +10,9 @@ import (
 
 const (
 	MAX_WIDTH = 300
-	OUT_PATH  = "tmp/"
 )
 
-func resize(path string, filename string) {
+func resize(path string) {
 	srcImage, err := imaging.Open(path)
 	if err != nil {
 		log.Fatal(err)
@@ -22,7 +21,7 @@ func resize(path string, filename string) {
 	if srcImage.Bounds().Dx() > MAX_WIDTH {
 		resizedImage := imaging.Resize(srcImage, MAX_WIDTH, 0, imaging.Lanczos)
 
-		err = imaging.Save(resizedImage, OUT_PATH+filename)
+		err = imaging.Save(resizedImage, path)
 		if err != nil {
 			log.Fatalf("failed to save image: %v", err)
 		}
@@ -38,6 +37,6 @@ func main() {
 	files, _ := ioutil.ReadDir(dirPath)
 
 	for _, fileInfo := range files {
-		resize(dirPath+fileInfo.Name(), fileInfo.Name())
+		resize(dirPath + fileInfo.Name())
 	}
 }
